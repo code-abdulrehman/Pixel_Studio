@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Studio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+    body { user-select: none; }
+    canvas { image-rendering: pixelated; cursor: crosshair; }
+</style>
+</head>
+
+<body class="bg-zinc-950 text-zinc-200 min-h-screen flex flex-col items-center p-6 font-sans">
+
+<h1 class="text-4xl font-bold mb-8 tracking-tight text-white">
+    Pixel Studio
+</h1>
+
+<div class="flex flex-col lg:flex-row gap-8 w-full max-w-6xl">
+
+    <!-- Controls -->
+    <div class="bg-zinc-900 border border-zinc-800 p-6 shadow-xl w-full lg:w-80 space-y-6">
+
+        <!-- Base Color Picker -->
+        <div>
+            <label class="text-sm text-zinc-400 uppercase tracking-widest">Base Color</label>
+            <input type="color" id="colorPicker"
+                value="#22c55e"
+                class="w-full h-12 mt-2 bg-zinc-800 border border-zinc-700 cursor-pointer">
+        </div>
+
+        <!-- Shade Preview -->
+        <div>
+            <label class="text-sm text-zinc-400 uppercase tracking-widest">9 Auto Shades</label>
+            <div id="shadePreview" class="grid grid-cols-9 gap-1 mt-2"></div>
+        </div>
+
+        <!-- Grid Size -->
+        <div>
+            <div class="flex justify-between items-baseline mb-3">
+                <label class="text-sm text-zinc-400 uppercase tracking-widest">Grid Size</label>
+                <span id="gridSizeLabel" class="text-xs font-mono text-zinc-100 bg-zinc-800 px-2 py-1">32</span>
+            </div>
+            <div class="relative">
+                <input type="range" min="16" max="64" step="16" value="32"
+                    id="gridSlider"
+                    class="w-full h-1 appearance-none cursor-pointer z-10 relative bg-zinc-800 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-none [&::-webkit-slider-thumb]:rounded-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-none">
+                <div class="flex justify-between text-[10px] text-zinc-600 font-mono mt-3 absolute w-full top-5 left-0 pointer-events-none">
+                    <div class="flex flex-col items-center w-6 -ml-3 relative">
+                        <div class="h-2 w-[1px] bg-zinc-700 mb-1 absolute -top-3"></div>
+                        <span>16</span>
+                    </div>
+                    <div class="flex flex-col items-center w-6 relative">
+                        <div class="h-2 w-[1px] bg-zinc-700 mb-1 absolute -top-3"></div>
+                        <span>32</span>
+                    </div>
+                    <div class="flex flex-col items-center w-6 relative">
+                        <div class="h-2 w-[1px] bg-zinc-700 mb-1 absolute -top-3"></div>
+                        <span>48</span>
+                    </div>
+                    <div class="flex flex-col items-center w-6 -mr-3 relative">
+                        <div class="h-2 w-[1px] bg-zinc-700 mb-1 absolute -top-3"></div>
+                        <span>64</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="space-y-3 pt-4 border-t border-zinc-800">
+
+            <button id="resetBtn"
+                class="w-full bg-red-950 hover:bg-red-900 text-red-400 border border-red-800 py-2 transition font-semibold tracking-wide uppercase text-sm">
+                Reset
+            </button>
+
+            <button id="exportBtn"
+                class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-600 py-2 transition font-semibold tracking-wide uppercase text-sm">
+                Export PNG
+            </button>
+
+        </div>
+
+        <p class="text-xs text-zinc-600">
+            Hold longer on a pixel → darker shade.
+        </p>
+
+    </div>
+
+    <!-- Canvas -->
+    <div class="flex-1 flex justify-center">
+        <div class="p-3 bg-white shadow-2xl">
+            <canvas id="canvas"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* =========================
+   CONFIG
+========================= */
+
+const CANVAS_SIZE = 512;
+const SHADE_LEVELS = 9;
+
+/* =========================
+   STATE
+========================= */
+
+let gridSize = 32;
+let pixelSize;
+let gridData = [];
+let isDrawing = false;
+let holdStartTime = 0;
+let shades = [];
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const slider = document.getElementById("gridSlider");
+const sizeLabel = document.getElementById("gridSizeLabel");
+const resetBtn = document.getElementById("resetBtn");
+const exportBtn = document.getElementById("exportBtn");
+const colorPicker = document.getElementById("colorPicker");
+const shadePreview = document.getElementById("shadePreview");
+
+/* =========================
+   INIT
+========================= */
+
+canvas.width = CANVAS_SIZE;
+canvas.height = CANVAS_SIZE;
+
+function hexToHSL(hex) {
+    let r = parseInt(hex.slice(1,3),16)/255;
+    let g = parseInt(hex.slice(3,5),16)/255;
+    let b = parseInt(hex.slice(5,7),16)/255;
+
+    let max = Math.max(r,g,b), min = Math.min(r,g,b);
+    let h,s,l = (max+min)/2;
+
+    if(max===min){ h=s=0; }
+    else{
+        let d = max-min;
+        s = l>0.5 ? d/(2-max-min) : d/(max+min);
+        switch(max){
+            case r: h=(g-b)/d+(g<b?6:0); break;
+            case g: h=(b-r)/d+2; break;
+            case b: h=(r-g)/d+4; break;
+        }
+        h/=6;
+    }
+    return [Math.round(h*360), Math.round(s*100), Math.round(l*100)];
+}
+
+function generateShades(baseHex) {
+
+    const [h,s,l] = hexToHSL(baseHex);
+    shades = [];
+
+    for(let i=0;i<SHADE_LEVELS;i++){
+        const lightness = 85 - (i*7);
+        shades.push(`hsl(${h}, ${s}%, ${lightness}%)`);
+    }
+
+    renderShadePreview();
+}
+
+function renderShadePreview(){
+    shadePreview.innerHTML = "";
+    shades.forEach(color=>{
+        const box = document.createElement("div");
+        box.className="h-6";
+        box.style.background=color;
+        shadePreview.appendChild(box);
+    });
+}
+
+/* =========================
+   GRID
+========================= */
+
+function setupGrid(){
+    pixelSize = CANVAS_SIZE / gridSize;
+    gridData = Array.from({length:gridSize},()=>Array(gridSize).fill(null));
+    drawGrid();
+}
+
+function drawCell(x,y,color){
+    ctx.fillStyle=color;
+    ctx.fillRect(x*pixelSize,y*pixelSize,pixelSize,pixelSize);
+}
+
+function drawGrid(){
+    ctx.fillStyle="#ffffff";
+    ctx.fillRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
+
+    for(let y=0;y<gridSize;y++){
+        for(let x=0;x<gridSize;x++){
+            if(gridData[y][x]) drawCell(x,y,gridData[y][x]);
+        }
+    }
+}
+
+function getShade(ms){
+    const maxTime=450;
+    const clamped=Math.min(ms,maxTime);
+    const index=Math.min(Math.floor((clamped/maxTime)*SHADE_LEVELS),SHADE_LEVELS-1);
+    return shades[index];
+}
+
+function handleDraw(e){
+    const rect=canvas.getBoundingClientRect();
+    const x=Math.floor((e.clientX-rect.left)/pixelSize);
+    const y=Math.floor((e.clientY-rect.top)/pixelSize);
+
+    if(x<0||y<0||x>=gridSize||y>=gridSize) return;
+
+    const duration=performance.now()-holdStartTime;
+    const color=getShade(duration);
+
+    gridData[y][x]=color;
+    drawCell(x,y,color);
+}
+
+/* =========================
+   EVENTS
+========================= */
+
+canvas.addEventListener("mousedown",e=>{
+    isDrawing=true;
+    holdStartTime=performance.now();
+    handleDraw(e);
+});
+
+canvas.addEventListener("mousemove",e=>{
+    if(isDrawing) handleDraw(e);
+});
+
+window.addEventListener("mouseup",()=>isDrawing=false);
+
+function updateSliderTrack() {
+    const val = parseInt(slider.value);
+    const min = parseInt(slider.min);
+    const max = parseInt(slider.max);
+    const percentage = ((val - min) / (max - min)) * 100;
+    slider.style.background = `linear-gradient(to right, white ${percentage}%, #27272a ${percentage}%)`;
+}
+
+slider.addEventListener("input",e=>{
+    gridSize=parseInt(e.target.value);
+    sizeLabel.textContent = gridSize;
+    updateSliderTrack();
+    setupGrid();
+});
+
+resetBtn.addEventListener("click",setupGrid);
+
+exportBtn.addEventListener("click",()=>{
+    const link=document.createElement("a");
+    link.download="pixel-art.png";
+    link.href=canvas.toDataURL();
+    link.click();
+});
+
+colorPicker.addEventListener("input",e=>{
+    generateShades(e.target.value);
+});
+
+/* =========================
+   START
+========================= */
+
+generateShades(colorPicker.value);
+setupGrid();
+updateSliderTrack();
+
+</script>
+
+</body>
+</html>
