@@ -249,7 +249,8 @@
             font-weight: 400;
             cursor: pointer;
             transition: all .3s;
-            text-decoration: none
+            text-decoration: none;
+            box-shadow: 4px 4px 0 rgba(59, 130, 246, .25);
         }
 
         .btn-s:hover {
@@ -997,6 +998,91 @@
             text-decoration: none
         }
 
+        .faq {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 4rem 2rem;
+            background: #f8fafc;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .faq-inner {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .faq h2 {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: #0f172a;
+            margin-bottom: 2rem;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        .faq-item {
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 1rem;
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.04);
+        }
+
+        .faq-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .faq-q {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            font-size: 0.55rem;
+            font-weight: 400;
+            color: #0f172a;
+            line-height: 1.6;
+            text-align: left;
+            width: 100%;
+            border: none;
+            background: none;
+            font-family: inherit;
+        }
+
+        .faq-q:hover {
+            background: #f8fafc;
+        }
+
+        .faq-q::after {
+            content: '+';
+            flex-shrink: 0;
+            font-size: 0.7rem;
+            color: #64748b;
+            transition: transform 0.2s ease;
+        }
+
+        .faq-item.open .faq-q::after {
+            content: '−';
+        }
+
+        .faq-a {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease;
+        }
+
+        .faq-item.open .faq-a {
+            max-height: 200px;
+        }
+
+        .faq-a-inner {
+            padding: 0 1.25rem 1rem;
+            font-size: 0.45rem;
+            color: #64748b;
+            line-height: 2;
+            border-top: 1px solid #f1f5f9;
+        }
+
         .fi {
             opacity: 0;
             transform: translateY(25px);
@@ -1125,7 +1211,7 @@
         <canvas id="heroMosaic"></canvas>
 
         <div class="hero-content">
-            <h1 class="hero-title"><span class="grad">Create Pixel Art</span><br>with AI Precision</h1>
+            <h1 class="hero-title"><span class="grad">Create Pixel Art</span><br>with Precision</h1>
             <p class="hero-sub">The smartest pixel art editor for indie devs, game designers & digital artists.
                 Auto-shading, smart palettes, and one-click export — all in your browser.</p>
 
@@ -1311,9 +1397,6 @@
                 </div>
                 <div class="card fi">
                     <div class="card-glow"></div>
-                    <div class="card-icon"><svg width="22" height="22">
-                            <use href="#i-code" />
-                        </svg></div>
                     <h3>Embed Anywhere</h3>
                     <p>Copy your pixel art as clean <code style="color:#6366f1;font-size:.82rem">&lt;svg&gt;</code> or
                         CSS
@@ -1331,7 +1414,7 @@
         <div class="ed-orb ed-orb-2"></div>
         <h2 class="fi"><span>Pixel Studio</span></h2>
         <p class="sub fi">The world's most advanced browser-based pixel art studio. Craft perfect sprites with
-            AI-powered shading and instant exports.</p>
+            smart shading and instant exports.</p>
         <div class="ed-wrap fi">
             <div class="ctrl">
                 <div class="cg"><label>Base Color</label><input type="color" id="colorPicker" value="#22c55e"></div>
@@ -1352,10 +1435,8 @@
                 <button id="embedBtn" class="btn-e"
                     style="background:rgba(6,182,212,.06);color:#22d3ee;border-color:rgba(6,182,212,.12)"
                     onmouseover="this.style.background='rgba(6,182,212,.12)';this.style.borderColor='rgba(6,182,212,.25)'"
-                    onmouseout="this.style.background='rgba(6,182,212,.06)';this.style.borderColor='rgba(6,182,212,.12)'"><svg
-                        width="14" height="14" style="display:inline;vertical-align:-2px;margin-right:4px">
-                        <use href="#i-code" />
-                    </svg>Embed Code</button>
+                    onmouseout="this.style.background='rgba(6,182,212,.06)';this.style.borderColor='rgba(6,182,212,.12)'">
+                        Embed Code</button>
                 <p class="hint">Hold longer on a pixel → darker shade.</p>
 
                 <!-- Embed Modal -->
@@ -1367,12 +1448,9 @@
                             style="position:absolute;top:20px;right:20px;background:#f8fafc;border:2px solid #e2e8f0;color:#64748b;width:36px;height:36px;border-radius:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;box-shadow: 3px 3px 0 rgba(0,0,0,0.04)">&times;</button>
                         <h3
                             style="font-size:1.5rem;font-weight:800;color:#0f172a;margin-bottom:8px;letter-spacing:-0.02em">
-                            <svg width="20" height="20"
-                                style="display:inline;vertical-align:-2px;margin-right:8px;color:#4f46e5">
-                                <use href="#i-code" />
-                            </svg>Export Your Creation
+                            Export Your Creation
                         </h3>
-                        <p style="font-size:0.95rem;color:#475569;margin-bottom:1.5rem;line-height:1.6">Share your
+                        <p style="font-size:0.35rem;color:#475569;margin-bottom:1.5rem;line-height:1.6">Share your
                             masterpiece with the world. Copy the production-ready code below.</p>
                         <div style="display:flex;gap:12px;margin-bottom:1.5rem">
                             <button class="embed-tab active" data-tab="svg"
@@ -1400,12 +1478,43 @@
         </div>
     </section>
 
+    <section class="faq" id="faq">
+        <div class="faq-inner">
+            <h2>FAQs</h2>
+            <div class="faq-item">
+                <button type="button" class="faq-q">How do I use the pixel editor?</button>
+                <div class="faq-a">
+                    <div class="faq-a-inner">Pick a base color, then click and hold on the canvas. The longer you hold, the darker the shade (9 levels). Use the grid size slider to change resolution. Export as PNG or copy embed code.</div>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button type="button" class="faq-q">Can I use the pixel art in my game or project?</button>
+                <div class="faq-a">
+                    <div class="faq-a-inner">Yes. Export as PNG or copy the SVG/CSS embed code. Use it in games, apps, or websites. No watermark; it's yours.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <footer>
         <p style="position: relative; top: -2rem;">&copy; 2026 — Built with care for pixel artists everywhere.</p>
         <span class="footer-brand">Pixel Studio</span>
     </footer>
 
     <script>
+        /* ===== FAQ ACCORDION ===== */
+        (function () {
+            document.querySelectorAll('.faq-item').forEach(function (item) {
+                var btn = item.querySelector('.faq-q');
+                if (!btn) return;
+                btn.addEventListener('click', function () {
+                    var isOpen = item.classList.contains('open');
+                    document.querySelectorAll('.faq-item.open').forEach(function (other) { other.classList.remove('open'); });
+                    if (!isOpen) item.classList.add('open');
+                });
+            });
+        })();
+
         /* ===== HERO MOSAIC ANIMATION ===== */
         (function () {
             const mc = document.getElementById('heroMosaic'), mx = mc.getContext('2d');
@@ -1652,11 +1761,12 @@
                 const ps = Math.max(1, Math.round(16 / gridSize * 10)); // pixel size in SVG
                 const svgW = gridSize * ps;
                 const svgH = gridSize * ps;
+                const toHex = (c) => (c && c.startsWith && c.startsWith('#')) ? c : hslToHex(c);
                 let rects = '';
                 for (let y = 0; y < gridSize; y++) {
                     for (let x = 0; x < gridSize; x++) {
                         if (gridData[y][x]) {
-                            const hex = hslToHex(gridData[y][x]);
+                            const hex = toHex(gridData[y][x]);
                             rects += `  <rect x="${x * ps}" y="${y * ps}" width="${ps}" height="${ps}" fill="${hex}"/>\n`;
                         }
                     }
@@ -1675,12 +1785,13 @@
                     return `<!-- Hero Pixel Art (80×40) -->\n<div class="pixel-art-container" style="background:#0c0c1a; width:800px; height:400px; position:relative; overflow:hidden;">\n  <div class="pixel-art"></div>\n</div>\n\n<style>\n.pixel-art {\n  width: ${ps}px;\n  height: ${ps}px;\n  transform: scale(10);\n  transform-origin: top left;\n  box-shadow:\n    ${shadows.join(',\n    ')};\n}\n</style>`;
                 }
 
+                const toHex = (c) => (c && c.startsWith && c.startsWith('#')) ? c : hslToHex(c);
                 const shadows = [];
                 const ps = 1; // 1px per cell, scale with CSS
                 for (let y = 0; y < gridSize; y++) {
                     for (let x = 0; x < gridSize; x++) {
                         if (gridData[y][x]) {
-                            const hex = hslToHex(gridData[y][x]);
+                            const hex = toHex(gridData[y][x]);
                             shadows.push(`${(x + 1) * ps}px ${(y + 1) * ps}px 0 ${hex}`);
                         }
                     }
